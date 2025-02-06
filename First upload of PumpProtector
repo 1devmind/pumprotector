@@ -1,0 +1,71 @@
+import requests
+import pandas as pd
+import tkinter as tk
+from tkinter import ttk
+
+# Alpha Vantage API setup
+API_KEY = '7GTXDHD2AG31XYUG'
+
+# Function to get cryptocurrency data from CoinGecko
+def get_crypto_data(symbol):
+    # CoinGecko API endpoint for real-time price data
+    url = f"https://api.coingecko.com/api/v3/simple/price?ids={symbol}&vs_currencies=usd"
+    response = requests.get(url)
+    data = response.json()
+
+    # Check if the symbol exists in the returned data
+    if symbol in data:
+        price = data[symbol]["usd"]
+        return price
+    else:
+        return None
+
+# Function to display results in the GUI
+def display_results(symbol):
+    price = get_crypto_data(symbol)
+    if price is not None:
+        result_text = f"{symbol.upper()} Price: ${price:.2f} USD"
+    else:
+        result_text = "No Data Available for this symbol!"
+
+    # Update the result label with the fetched data
+    result_label.config(text=result_text)
+
+# Function to handle the search button click
+def on_search():
+    symbol = search_entry.get().strip().lower()  # Convert to lowercase for consistency
+    if symbol:
+        display_results(symbol)
+    else:
+        result_label.config(text="Please enter a valid symbol!")
+
+# Create the main application window
+root = tk.Tk()
+root.title("Cryptocurrency Price Finder")
+root.geometry("600x400")
+
+# Set a dark theme for the window
+root.configure(bg="#2e2e2e")
+
+# Style for widgets (using ttk for a more modern look)
+style = ttk.Style()
+style.configure("TButton", background="#444", foreground="white", font=("Arial", 12))
+style.configure("TLabel", background="#2e2e2e", foreground="white", font=("Arial", 12))
+style.configure("TEntry", foreground="white", fieldbackground="#444", font=("Arial", 12))
+
+# Add the search bar and button
+search_label = ttk.Label(root, text="Enter Cryptocurrency Symbol (e.g., bitcoin, ethereum):")
+search_label.pack(pady=10)
+
+search_entry = ttk.Entry(root, width=30)
+search_entry.pack(pady=10)
+
+search_button = ttk.Button(root, text="Search", command=on_search)
+search_button.pack(pady=20)
+
+# Label to display results
+result_label = ttk.Label(root, text="Enter a symbol and click search", justify="left", anchor="w")
+result_label.pack(pady=20, padx=10)
+
+# Start the GUI loop
+root.mainloop()
